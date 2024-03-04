@@ -1,0 +1,47 @@
+# Project Name
+Onlinechecker
+
+## Table of Contents
+* [General Info](#general-information)
+* [Features](#features)
+* [Project Status](#project-status)
+* [Room for Improvement](#room-for-improvement)
+
+
+
+## General Information
+I wrote this little program to check if my firewall in proxmox is reachable.
+If it was not reachable, this program would restart the VM to fix the problem.
+It would run as a cronjob every 5 minutes
+
+
+## Usage
+Variables to be set
+
+| Varbailename  | Description |
+| ------------- | ------------- |
+| ENV_TIMEOUT| Timeout of the request |
+| ENV_URL | URL for the request|
+| ENV_COMMAND | The command that should be used  |
+| ENV_VMID  | ID of the VM the command should be used with  |
+| ENV_COMMAND_PATH  | Path to the bin file, for example, /usr/sbin/qm  |
+| ENV_WAITTIME | Wait time between the checks in seconds  |
+
+Some of them have defaults; check the struct for more information
+
+
+```shell
+go run main.go 
+```
+
+
+## Project Status
+Project is: _in progress_
+
+
+## Room for Improvement
+
+Room for improvement:
+- make the time it is looped configurable
+- make the command more flexible at the moment; it is quite a niche case (proxmox)
+
