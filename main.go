@@ -20,6 +20,11 @@ type config struct {
 	VmCommandPath string  `env:"ENV_COMMAND_PATH"`
 	RetryWaitTime int     `env:"ENV_WAITTIME"`
 }
+type httpClient struct {
+	Client  *http.Client
+	baseUrl string
+	timeOut int
+}
 
 func main() {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true, Level: slog.LevelDebug}))
@@ -37,8 +42,13 @@ func main() {
 	cfg.URL.Scheme = "https"
 	log.Info("Starting check with", slog.String("url", cfg.URL.String()), slog.Int("timeout", cfg.Timeout), slog.Int("loop time", cfg.RetryWaitTime))
 	retry := 0
+	client := httpClient{
+		Client:  &http.Client{},
+		timeOut: cfg.Timeout,
+		baseUrl: cfg.URL.String(),
+	}
 	for {
-		connection, err := checkConnection(&cfg, log)
+		connection, err := client.checkConnection(log)
 		if err != nil {
 			if retry >= 3 {
 				break
@@ -69,12 +79,8 @@ func main() {
 	}
 }
 
-func checkConnection(cfg *config, log *slog.Logger) (bool, error) {
-	client := &http.Client{
-		Timeout: time.Duration(cfg.Timeout * int(time.Second)),
-	}
-
-	resp, err := client.Get(cfg.URL.String())
+func (client *httpClient) checkConnection(log *slog.Logger) (bool, error) {
+	resp, err := client.Client.Get(client.baseUrl)
 	if err != nil {
 		log.Error("Error:", slog.Any("error:", err))
 		return false, err
